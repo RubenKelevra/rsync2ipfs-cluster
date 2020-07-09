@@ -72,8 +72,19 @@ rsync_target="${HOME}/$ipfs_folder/"
 # rsync url
 rsync_source='rsync://mirror.f4st.host/archlinux/'
 
-# http/https url to the lastupdate file on the same server, to skip unnecessary rsync syncs
-lastupdate_url='https://mirror.f4st.host/archlinux/lastupdate'
+# http/https url whichs content needs to change to trigger a rsync
+trigger_url='https://mirror.f4st.host/archlinux/lastupdate'
+
+# set this value to a time you expect the url will be cached compared to the rsync content (in seconds)
+trigger_url_cache_time=60
+
+# set to 1 if there's a file in the rsync folder which should be compared to the url
+# if set to 0 the content behind the $trigger_url will be cached and compared
+#   between two runs of this script
+trigger_file=1
+
+# the relative path of the trigger file (in relation to $rsync_target)
+trigger_filename="lastupdate"
 
 # Lockfile path
 lock="${HOME}/.rsync2cluster/$ipfs_folder.lock"
@@ -83,6 +94,9 @@ rsync_log="${HOME}/.rsync2cluster/$ipfs_folder.log"
 
 # rsync log archive
 rsync_log_archive="${HOME}/.rsync2cluster/${ipfs_folder}_archive.log"
+
+# caches the content of trigger url from the last run of this script
+trigger_url_cachefile="${HOME}/.rsync2cluster/trigger_url.cache"
 
 #### END CONFIG
 
@@ -109,6 +123,38 @@ function get_frozen_name() {
 	local _name="$1"
 	
 	echo "${_name}@$(get_timestamp)"
+}
+
+function check_triggerfile() {
+	[ "$trigger_file" -eq 0 ] && fail "check_triggerfile() was called while \$trigger_file was deactivated" 227
+	
+	if [ -f "$rsync_target/$trigger_filename" ] && diff -b <(curl -Ls "$trigger_url") "$rsync_target/$trigger_filename" > /dev/null; then
+		# trigger file exists and is equal to the content available at the $trigger_url
+		return 1
+	else
+		# either the triggerfile doesn't exist, or the content was different
+		return 0
+	fi
+}
+
+function check_trigger_url() {
+	[ "$trigger_file" -eq 1 ] && fail "check_trigger_url() was called while \$trigger_file was activated" 228
+	[ -z "$trigger_url_cachefile" ] && fail "check_trigger_url() was called while \$trigger_url_cachefile was empty" 229
+	if [ -f "$trigger_url_cachefile" ]; then
+		mv "$trigger_url_cachefile" "${trigger_url_cachefile}.old" || fail "check_trigger_url() couldn't move \$trigger_url_cachefile" 230
+	fi
+	curl -Ls "$trigger_url" > "$trigger_url_cachefile" || warning "curl returns an error while fetching \$trigger_url"
+	if [ -f "${trigger_url_cachefile}.old" ] && diff -b "${trigger_url_cachefile}.old" "$trigger_url_cachefile" > /dev/null; then
+		# trigger url cachefile exists and is equal to the content available at the $trigger_url
+		rm  "${trigger_url_cachefile}.old" || warning "check_trigger_url() couldn't remove the outdated \$trigger_url_cachefile"
+		return 1
+	else
+		# either the triggerfile didn't exist, or the content was different
+		if [ -f "${trigger_url_cachefile}.old" ]; then
+			rm  "${trigger_url_cachefile}.old" || warning "check_trigger_url() couldn't remove the outdated \$trigger_url_cachefile"
+		fi
+		return 0
+	fi
 }
 
 function rsync_main_cmd() {
@@ -287,10 +333,31 @@ function create_log_archive_path() {
 	mkdir -p "$log_archive_path" || fail "could not create folder for lock file" 1044
 }
 
+function create_trigger_url_cachefile_path() {
+	local trigger_url_cachefile_path=""
+	trigger_url_cachefile_path=$(get_path_wo_fn "${trigger_url_cachefile}")
+	mkdir -p "$trigger_url_cachefile_path" || fail "could not create folder for trigger url cache file" 1045
+}
+
+# constants
+cfg_nul_str='config string is empty'
+
+# check basic config
+[ -z "$lock" ] && fail "lock file $cfg_nul_str" 12
+[ -z "$rsync_log" ] && fail "rsync log-file $cfg_nul_str" 13
+[ -z "$rsync_log_archive" ] && fail "rsync log archive file $cfg_nul_str" 14
+[ -z "$trigger_file" ] && fail "trigger file $cfg_nul_str" 32
+if [ "$trigger_file" -eq 0 ]; then
+	[ -z "$trigger_url_cachefile" ] && fail "trigger url cachefile path $cfg_nul_str" 34
+fi
+
 #create folders for log and lock if they don't exist
 create_lock_path
 create_log_path
 create_log_archive_path
+if [ "$trigger_file" -eq 0 ]; then
+	create_trigger_url_cachefile_path
+fi
 
 # get lock or exit
 exec 9> "${lock}"
@@ -347,32 +414,31 @@ while true; do
 	shift
 done
 
-# check config
+# check advanced config
 
-nul_str='config string is empty'
-
-[ -z "$rsync_target" ] && fail "rsync target dir $nul_str" 10
-[ -z "$lock" ] && fail "lock file $nul_str" 12
-[ -z "$rsync_log" ] && fail "rsync log-file $nul_str" 13
-[ -z "$rsync_log_archive" ] && fail "rsync log archive file $nul_str" 14
-[ -z "$rsync_source" ] && fail "rsync source url $nul_str" 16
-[ -z "$lastupdate_url" ] && fail "lastupdate url $nul_str" 17
-[ -z "$ipfs_folder" ] && fail "ipfs mfs folder $nul_str" 18
+[ -z "$rsync_target" ] && fail "rsync target dir $cfg_nul_str" 10
+[ -z "$rsync_source" ] && fail "rsync source url $cfg_nul_str" 16
+[ -z "$trigger_url" ] && fail "trigger url $cfg_nul_str" 17
+[ -z "$trigger_url_cache_time" ] && fail "trigger url cache time $cfg_nul_str" 31
+if [ "$trigger_file" -eq 1 ]; then
+	[ -z "$trigger_filename" ] && fail "trigger filename $cfg_nul_str" 33
+fi
+[ -z "$ipfs_folder" ] && fail "ipfs mfs folder $cfg_nul_str" 18
 if [ "$NOIPNS" -eq 0 ]; then
-	[ -z "$ipfs_ipns_name" ] && fail "ipfs ipns name $nul_str" 19
-	[ -z "$ipfs_ipns_ttl" ] && fail "ipfs ipns ttl $nul_str" 20
-	[ -z "$ipfs_ipns_lifetime" ] && fail "ipfs ipns lifetime $nul_str" 21
+	[ -z "$ipfs_ipns_name" ] && fail "ipfs ipns name $cfg_nul_str" 19
+	[ -z "$ipfs_ipns_ttl" ] && fail "ipfs ipns ttl $cfg_nul_str" 20
+	[ -z "$ipfs_ipns_lifetime" ] && fail "ipfs ipns lifetime $cfg_nul_str" 21
 fi
 if [ "$NOCLUSTER" -eq 0 ]; then
-	[ -z "$default_cluster_replication_min" ] && fail "ipfs-cluster minimal replication $nul_str" 22
-	[ -z "$default_cluster_replication_max" ] && fail "ipfs-cluster maximal replication $nul_str" 23
-	[ -z "$default_cluster_pin_expire" ] && fail "ipfs-cluster pin expire $nul_str" 24
-	[ -z "$cluster_api_host" ] && fail "ipfs-cluster api-host $nul_str" 25
+	[ -z "$default_cluster_replication_min" ] && fail "ipfs-cluster minimal replication $cfg_nul_str" 22
+	[ -z "$default_cluster_replication_max" ] && fail "ipfs-cluster maximal replication $cfg_nul_str" 23
+	[ -z "$default_cluster_pin_expire" ] && fail "ipfs-cluster pin expire $cfg_nul_str" 24
+	[ -z "$cluster_api_host" ] && fail "ipfs-cluster api-host $cfg_nul_str" 25
 fi
-[ -z "$ipfs_api_host" ] && fail "ipfs api-host $nul_str" 27
-[ -z "$ipfs_chunker" ] && fail "ipfs chunker $nul_str" 28
-[ -z "$ipfs_hash" ] && fail "ipfs hash algorithm $nul_str" 29
-[ -z "$ipfs_cid" ] && fail "ipfs cid $nul_str" 30
+[ -z "$ipfs_api_host" ] && fail "ipfs api-host $cfg_nul_str" 27
+[ -z "$ipfs_chunker" ] && fail "ipfs chunker $cfg_nul_str" 28
+[ -z "$ipfs_hash" ] && fail "ipfs hash algorithm $cfg_nul_str" 29
+[ -z "$ipfs_cid" ] && fail "ipfs cid $cfg_nul_str" 30
 
 # check/create directories
 if [ ! -d "${rsync_target}" ]; then
@@ -410,12 +476,26 @@ if [ "$RECOVER" -eq 0 ]; then
 	# force update if we're creating
 	[ "$CREATE" -eq 1 ] && rm -f "${rsync_target}lastupdate" || true
 	
-	# only run when there are changes
-	if [[ -f "${rsync_target}lastupdate" ]] && diff -b <(curl -Ls "$lastupdate_url") "${rsync_target}lastupdate" > /dev/null; then
-		# exit here if we should do a delta update but there's nothing to do
-		[ "$CREATE" -eq 0 ] && exit 0
+	# trigger url/file check
+	if [ "$trigger_file" ]; then
+		if ! check_triggerfile; then
+			printf '\n:: no changes found, waiting %s seconds for changes, before rechecking\n' "$trigger_url_cache_time"
+			sleep "$trigger_url_cache_time"
+			if ! check_triggerfile; then
+				# exit here if we should do a delta update but there's nothing to do
+				[ "$CREATE" -eq 0 ] && exit 0
+			fi
+		fi
+	else # use just the check url
+		if ! check_trigger_url; then
+			printf '\n:: no changes found, waiting %s seconds for changes, before rechecking\n' "$trigger_url_cache_time"
+			sleep "$trigger_url_cache_time"
+			if ! check_trigger_url; then
+				# exit here if we should do a delta update but there's nothing to do
+				[ "$CREATE" -eq 0 ] && exit 0
+			fi
+		fi
 	fi
-	
 	printf '\n:: starting rsync operation @ %s\n' "$(get_timestamp)"
 	
 	if [ "$NOCLUSTER" -eq 0 ]; then
