@@ -260,7 +260,7 @@ function ipfs_mfs_add_file() {
 	local _cid=""
 
 	# workaround for https://github.com/ipfs/go-ipfs/issues/7532
-	if ! _cid=$(ipfs_api add --chunker "$ipfs_chunker" --hash "$ipfs_hash" --cid-version "$ipfs_cid" --quieter "$1"); then
+	if ! _cid=$(ipfs_api add --chunker "$ipfs_chunker" --hash "$ipfs_hash" --cid-version "$ipfs_cid" --raw-leaves --trickle --quieter "$1"); then
 		fail "ipfs_mfs_add_file() could not add the file '$1' to ipfs" 283
 	elif ! ipfs_api files cp "/ipfs/$_cid" "$2" >/dev/null 2>&1; then
 		fail "ipfs_mfs_add_file() could not copy the file '$1' to the mfs location '$2'. CID: '$_cid'" 284
