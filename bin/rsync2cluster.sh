@@ -279,13 +279,13 @@ function create_lock_path() {
 function create_log_path() {
 	local log_path=""
 	log_path=$(get_path_wo_fn "${rsync_log}")
-	mkdir -p "$log_path" || fail "could not create folder for lock file" 1044
+	mkdir -p "$log_path" || fail "could not create folder for log file" 1044
 }
 
 function create_log_archive_path() {
 	local log_archive_path=""
 	log_archive_path=$(get_path_wo_fn "${rsync_log_archive}")
-	mkdir -p "$log_archive_path" || fail "could not create folder for lock file" 1044
+	mkdir -p "$log_archive_path" || fail "could not create folder for log file" 1044
 }
 
 #create folders for log and lock if they don't exist
