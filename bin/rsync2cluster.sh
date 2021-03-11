@@ -439,7 +439,7 @@ if [ "$RECOVER" -eq 0 ]; then
 
 	if [ "$NOCLUSTER" -eq 0 ]; then
 		#get old rootfolder CIDs
-		ipfs_mfs_folder_cid_preupdate=$(ipfs_api files stat --hash "/$ipfs_folder") || fail 'repo folder (IPFS) CID could not be determined before running the update' 400
+		ipfs_pin_cid_preupdate=$(ipfs-cluster-ctl_api pin ls | grep "$ipfs_folder" | awk '{ print $1 }') || fail 'clusterpin CID could not be determined before running the update' 400
 	fi
 
 	rsync_main_cmd --exclude='/pool' "${rsync_source}" "${rsync_target}"
@@ -615,7 +615,7 @@ if [ "$NOCLUSTER" -eq 0 ]; then
 	if [ $CREATE -eq 1 ]; then
 		add_clusterpin "$ipfs_mfs_folder_cid" "$ipfs_folder" || fail "Repo folder (IPFS) could not be published on the cluster-pinset; CID '$ipfs_mfs_folder_cid'" 999 -n
 	else
-		replace_clusterpin "$ipfs_mfs_folder_cid_preupdate" "$ipfs_mfs_folder_cid" || fail "Repo folder (IPFS) could not be published on the cluster-pinset; CID '$ipfs_mfs_folder_cid'" 999 -n
+		replace_clusterpin "$ipfs_pin_cid_preupdate" "$ipfs_mfs_folder_cid" || fail "Repo folder (IPFS) could not be published on the cluster-pinset; CID '$ipfs_mfs_folder_cid'" 999 -n
 	fi
 	echo "done."
 fi
