@@ -3,7 +3,7 @@
 
 ########
 #
-# Copyright © 2020 @RubenKelevra
+# Copyright © 2020-2021 @RubenKelevra
 #
 # Based on work from:
 # Copyright © 2014-2019 Florian Pritz <bluewind@xinu.at>
@@ -184,7 +184,8 @@ function replace_clusterpin() {
 
 	# error handling
 	[ -z "$_old_cid" ] && fail "replace_clusterpin() was called with an empty old cid" 244
-	[ -z "$_cid" ] && fail "replace_clusterpin() was called with an empty cid" 244
+	[ -z "$_cid" ] && fail "replace_clusterpin() was called with an empty cid" 245
+	[ "$_old_cid" == "$_cid" ] && fail "replace_clusterpin() was called with two identical cids" 246
 
 	if ! ipfs-cluster-ctl_api pin update --no-status "$_old_cid" "$_cid" > /dev/null 2>&1; then
 		fail "ipfs-cluster-ctl returned an error while updating cid '$_old_cid' to '$_cid'" 201
@@ -602,19 +603,27 @@ printf "\n:: sync completed, start publishing @ %s\n" "$(get_timestamp)"
 ipfs_mfs_folder_cid=$(ipfs_api files stat --hash "/$ipfs_folder") || fail 'repo folder (IPFS) CID could not be determined after update is completed' 400
 
 echo -ne ":: publishing new root-cid to DHT..."
-ipfs_api dht provide --timeout 3m "$ipfs_mfs_folder_cid" > /dev/null || warn 'Repo folder (IPFS) could not be published to dht after update\n' -n
+ipfs_api dht provide --timeout 10m "$ipfs_mfs_folder_cid" > /dev/null || warn 'Repo folder (IPFS) could not be published to dht after update\n' -n
 echo "done."
 
 if [ "$NOCLUSTER" -eq 0 ]; then
-	echo -ne ":: adding folder to cluster-pinset..."
 	if [ $CREATE -eq 1 ]; then
+		echo -ne ":: adding folder to cluster-pinset..."
 		add_clusterpin "$ipfs_mfs_folder_cid" "$ipfs_folder" || fail "Repo folder (IPFS) could not be published on the cluster-pinset; CID '$ipfs_mfs_folder_cid'" 999 -n
+		echo "done."
 	else
 		#get old rootfolder CIDs
 		ipfs_pin_cid_preupdate=$(ipfs-cluster-ctl_api pin ls | grep "$ipfs_folder" | awk '{ print $1 }') || fail 'clusterpin CID could not be determined before running the update' 400
-		replace_clusterpin "$ipfs_pin_cid_preupdate" "$ipfs_mfs_folder_cid" || fail "Repo folder (IPFS) could not be published on the cluster-pinset; CID '$ipfs_mfs_folder_cid'" 999 -n
+		[ -z "$ipfs_pin_cid_preupdate" ] && fail "Old clusterpin could not be located on the cluster-pinset" 1024
+		if [ "$ipfs_pin_cid_preupdate" == "$ipfs_mfs_folder_cid" ]; then
+			warn "Cluster-pinset already contained latest version of folder"
+		else
+			echo -ne ":: updating folder on cluster-pinset..."
+			replace_clusterpin "$ipfs_pin_cid_preupdate" "$ipfs_mfs_folder_cid" || fail "Repo folder (IPFS) could not be published on the cluster-pinset; CID '$ipfs_mfs_folder_cid'" 999 -n
+			echo "done."
+		fi
 	fi
-	echo "done."
+
 fi
 
 if [ "$NOIPNS" -eq 0 ]; then
