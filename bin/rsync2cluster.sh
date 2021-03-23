@@ -636,11 +636,27 @@ fi
 
 printf ':: operation successfully completed @ %s\n' "$(get_timestamp)"
 
-printf ':: start running GC... @ %s\n' "$(get_timestamp)"
+printf ':: checking diskspace... @ %s\n' "$(get_timestamp)"
 
-ipfs_api repo gc > /dev/null || fail "Could not run the GC after completing the import" 1232
+repo_current_size=-1
+repo_maxsize=-1
+while IFS= read -r -d $'\n' line; do
+	if [[ $line =~ ^RepoSize.* ]]; then
+		repo_current_size=$(echo "$line" | awk '{ print $2 }')
+	elif [[ $line =~ ^StorageMax.* ]]; then
+		repo_maxsize=$(echo "$line" | awk '{ print $2 }')
+	fi
+done < <(ipfs repo stat)
 
-printf ':: completed running the GC @ %s\n' "$(get_timestamp)"
+if [ -z "$repo_maxsize" ] || [ -z "$repo_current_size" ] || [ "$repo_maxsize" -eq -1 ] || [ "$repo_current_size" -eq -1 ]; then
+	fail "Could not read the repo sizeafter completing the import" 1233
+elif [ "$repo_current_size" -gt "$repo_maxsize" ]; then
+	printf ':: diskspace usage exceeded maxsize; starting GC... @ %s\n' "$(get_timestamp)"
+	ipfs_api repo gc > /dev/null || fail "Could not run the GC after completing the import" 1232
+	printf ':: GC operation completed @ %s\n' "$(get_timestamp)"
+else
+	printf ':: diskspace usage ok @ %s\n' "$(get_timestamp)"
+fi
 
 if [ $CREATE -eq 0 ]; then
 	cat "$rsync_log" >> "$rsync_log_archive" || fail "couldn't cat the rsync log" 977
