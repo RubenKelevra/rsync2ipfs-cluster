@@ -433,7 +433,10 @@ if [ "$RECOVER" -eq 0 ]; then
 	# only run when there are changes
 	if [[ -f "${rsync_target}lastupdate" ]] && diff -b <(curl -Ls "$lastupdate_url") "${rsync_target}lastupdate" > /dev/null; then
 		# exit here if we should do a delta update but there's nothing to do
-		[ "$CREATE" -eq 0 ] && exit 0
+		if [ "$CREATE" -eq 0 ]; then
+			printf ':: no changes in uplink-server detected; exiting @ %s\n' "$(get_timestamp)"
+			exit 0
+		fi
 	fi
 
 	printf '\n:: starting rsync operation @ %s\n' "$(get_timestamp)"
