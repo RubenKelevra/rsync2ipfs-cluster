@@ -649,7 +649,7 @@ while IFS= read -r -d $'\n' line; do
 	elif [[ $line =~ ^StorageMax.* ]]; then
 		repo_maxsize=$(echo "$line" | awk '{ print $2 }')
 	fi
-done < <(ipfs repo stat)
+done < <(ipfs_api repo stat)
 
 if [ -z "$repo_maxsize" ] || [ -z "$repo_current_size" ] || [ "$repo_maxsize" -eq -1 ] || [ "$repo_current_size" -eq -1 ]; then
 	fail "Could not read the repo sizeafter completing the import" 1233
