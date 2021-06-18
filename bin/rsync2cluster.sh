@@ -51,7 +51,7 @@ ipfs_folder='x86-64.archlinux.pkg.pacman.store'
 # key name and settings for publishing the ipns
 ipfs_ipns_name="$ipfs_folder"
 ipfs_ipns_ttl='5m'
-ipfs_ipns_lifetime='96h'
+ipfs_ipns_lifetime='1h'
 ipfs_chunker='buzhash'
 ipfs_hash='blake2b-256'
 ipfs_cid='1'
