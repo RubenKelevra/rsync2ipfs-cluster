@@ -632,9 +632,10 @@ fi
 if [ "$NOIPNS" -eq 0 ]; then
 	echo -ne ":: publishing new ipns record..."
 	if ! ipfs_api name publish --timeout 3m --resolve=false --allow-offline --ttl "$ipfs_ipns_ttl" --lifetime "$ipfs_ipns_lifetime" --key="$ipfs_ipns_name" "/ipfs/$ipfs_mfs_folder_cid" > /dev/null; then
-		fail 'Repo folder (IPFS) IPNS could not be published after update' 998 -n
+		warn 'Repo folder (IPFS) IPNS could not be published after update'
+	else
+		echo "done."
 	fi
-	echo "done."
 fi
 
 printf ':: operation successfully completed @ %s\n' "$(get_timestamp)"
