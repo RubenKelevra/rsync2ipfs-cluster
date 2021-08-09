@@ -48,8 +48,7 @@ set -e
 
 [ -z "${HOME}" ] && fail 'the system variable $HOME was empty' 26
 
-# key name and settings for publishing the ipns
-ipfs_ipns_name="$ipfs_folder"
+# settings for publishing the ipns
 ipfs_ipns_ttl='5m'
 ipfs_ipns_lifetime='1h'
 ipfs_chunker='size-65536'

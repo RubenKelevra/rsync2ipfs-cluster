@@ -12,6 +12,8 @@
 # ipfs-mfs folder
 ipfs_folder='x86-64.archlinux.pkg.pacman.store'
 
+ipfs_ipns_name="$ipfs_folder"
+
 # rsync url
 rsync_source='rsync://mirror.f4st.host/archlinux/'
 

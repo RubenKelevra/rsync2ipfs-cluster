@@ -12,6 +12,8 @@
 # ipfs-mfs folder
 ipfs_folder='endeavouros.pkg.pacman.store'
 
+ipfs_ipns_name="$ipfs_folder"
+
 # rsync url
 rsync_source='rsync://mirror.erickochen.nl/endeavouros/'
 
