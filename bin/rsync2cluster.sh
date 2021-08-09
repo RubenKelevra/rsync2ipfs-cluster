@@ -1,5 +1,5 @@
 #!/bin/bash
-# shellcheck disable=SC2015
+# shellcheck disable=SC2015 disable=SC1090
 
 ########
 #
@@ -40,8 +40,9 @@ set -e
 
 # available arguments:
 # --create - use this flag on the first run
+# --x-config - use the config file x
 #
-# make sure to source a config file first
+# make sure to create the x config file which should be loaded first
 
 # check environment
 
@@ -356,6 +357,12 @@ while true; do
 		--no-cluster)
 			NOCLUSTER=1
 			;;
+		--arch-config)
+			repo_rename_rules='arch'
+			;;
+		--endeavouros-config)
+			repo_rename_rules='endeavouros'
+			;;
 		--)
 			shift
 			break
@@ -363,6 +370,13 @@ while true; do
 	esac
 	shift
 done
+
+# load config file
+
+SCRIPT_FULLPATH=$(readlink -f "$0")
+SCRIPT_FULLDIR=$(dirname "$SCRIPT_FULLPATH")
+
+source "$SCRIPT_FULLDIR/../config/$repo_rename_rules"
 
 # check config
 
