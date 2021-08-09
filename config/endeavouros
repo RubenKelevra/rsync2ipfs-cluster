@@ -3,20 +3,20 @@
 
 ########
 #
-# Copyright © 2020-2021 @RubenKelevra
+# Copyright © 2021 @RubenKelevra
 #
 # LICENSE contains the licensing informations
 #
 ########
 
 # ipfs-mfs folder
-ipfs_folder='x86-64.archlinux.pkg.pacman.store'
+ipfs_folder='endeavouros.pkg.pacman.store'
 
 # rsync url
-rsync_source='rsync://mirror.f4st.host/archlinux/'
+rsync_source='rsync://mirror.erickochen.nl/endeavouros/'
 
 # http/https url to the lastupdate file on the same server, to skip unnecessary rsync syncs
-lastupdate_url='https://mirror.f4st.host/archlinux/lastupdate'
+lastupdate_url='https://mirror.erickochen.nl/endeavouros/synctrace.txt'
 
 # select repository rules to rename paths
-repo_rename_rules='arch'
+repo_rename_rules='endeavouros'
