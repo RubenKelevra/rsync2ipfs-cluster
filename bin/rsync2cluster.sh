@@ -318,12 +318,15 @@ CREATE=0
 RECOVER=0
 NOIPNS=0
 NOCLUSTER=0
+repo_rename_rules=''
 
 # argument definition
 cmd_flags=(
 	"create"
 	"no-ipns"
 	"no-cluster"
+	"arch-config"
+	"endeavouros-config"
 )
 
 #help message
