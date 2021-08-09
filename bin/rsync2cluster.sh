@@ -227,7 +227,11 @@ function add_clusterpin() {
 function rewrite_log_path() {
 	[ -z "$1" ] && fail "rewrite_log_path() was called with an empty argument" 274
 	#search and replace
-	output=$(echo "$1" | sed 's/\/os\/x86_64\//\//')
+	if [ "$repo_rename_rules" == 'arch' ]; then
+		output=$(echo "$1" | sed 's/\/os\/x86_64\//\//')
+	elif [ "$repo_rename_rules" == 'endeavouros' ]; then
+		output=$(echo "$1")
+	fi
 
 	#echo return string
 	echo "$output"
