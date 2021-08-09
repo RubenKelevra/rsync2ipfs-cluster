@@ -272,15 +272,6 @@ function create_log_archive_path() {
 	mkdir -p "$log_archive_path" || fail "could not create folder for log file" 1044
 }
 
-#create folders for log and lock if they don't exist
-create_lock_path
-create_log_path
-create_log_archive_path
-
-# get lock or exit
-exec 9> "${lock}"
-flock -n 9 || exit
-
 # state variables
 CREATE=0
 RECOVER=0
@@ -348,6 +339,15 @@ SCRIPT_FULLPATH=$(readlink -f "$0")
 SCRIPT_FULLDIR=$(dirname "$SCRIPT_FULLPATH")
 
 source "$SCRIPT_FULLDIR/../config/$repo_rename_rules"
+
+#create folders for log and lock if they don't exist
+create_lock_path
+create_log_path
+create_log_archive_path
+
+# get lock or exit
+exec 9> "${lock}"
+flock -n 9 || exit
 
 # check config
 
