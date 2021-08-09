@@ -45,9 +45,6 @@ set -e
 
 [ -z "${HOME}" ] && fail 'the system variable $HOME was empty' 26
 
-# ipfs-mfs folder
-ipfs_folder='x86-64.archlinux.pkg.pacman.store'
-
 # key name and settings for publishing the ipns
 ipfs_ipns_name="$ipfs_folder"
 ipfs_ipns_ttl='5m'
@@ -68,12 +65,6 @@ default_cluster_pin_expire="172800s" #workaround for broken parsing in 0.13
 
 # directory where rsync should target (needs to end with a slash)
 rsync_target="${HOME}/$ipfs_folder/"
-
-# rsync url
-rsync_source='rsync://mirror.f4st.host/archlinux/'
-
-# http/https url to the lastupdate file on the same server, to skip unnecessary rsync syncs
-lastupdate_url='https://mirror.f4st.host/archlinux/lastupdate'
 
 # Lockfile path
 lock="${HOME}/.rsync2cluster/$ipfs_folder.lock"
