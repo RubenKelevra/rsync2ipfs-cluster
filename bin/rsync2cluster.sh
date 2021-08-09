@@ -40,6 +40,8 @@ set -e
 
 # available arguments:
 # --create - use this flag on the first run
+#
+# make sure to source a config file first
 
 # check environment
 
