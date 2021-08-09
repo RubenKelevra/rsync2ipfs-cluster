@@ -1,0 +1,19 @@
+#!/bin/bash
+# shellcheck disable=SC2015
+
+########
+#
+# Copyright © 2020-2021 @RubenKelevra
+#
+# LICENSE contains the licensing informations
+#
+########
+
+# ipfs-mfs folder
+ipfs_folder='x86-64.archlinux.pkg.pacman.store'
+
+# rsync url
+rsync_source='rsync://mirror.f4st.host/archlinux/'
+
+# http/https url to the lastupdate file on the same server, to skip unnecessary rsync syncs
+lastupdate_url='https://mirror.f4st.host/archlinux/lastupdate'
