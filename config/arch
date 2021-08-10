@@ -49,3 +49,6 @@ rsync_source='rsync://mirror.f4st.host/archlinux/'
 lastupdate_url='https://mirror.f4st.host/archlinux/lastupdate'
 
 state_filepath='lastupdate'
+
+# select repository rules to rename paths
+repo_rename_rules='arch'
