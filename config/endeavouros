@@ -1,5 +1,5 @@
 #!/bin/bash
-# shellcheck disable=SC2015
+# shellcheck disable=SC2015 disable=SC2034
 
 ########
 #
@@ -47,3 +47,5 @@ rsync_source='rsync://mirror.erickochen.nl/endeavouros/'
 
 # http/https url to the lastupdate file on the same server, to skip unnecessary rsync syncs
 lastupdate_url='https://mirror.erickochen.nl/endeavouros/synctrace.txt'
+
+state_filepath='synctrace.txt'

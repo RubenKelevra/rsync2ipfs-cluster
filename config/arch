@@ -1,5 +1,5 @@
 #!/bin/bash
-# shellcheck disable=SC2015
+# shellcheck disable=SC2015 disable=SC2034
 
 ########
 #
@@ -47,3 +47,5 @@ rsync_source='rsync://mirror.f4st.host/archlinux/'
 
 # http/https url to the lastupdate file on the same server, to skip unnecessary rsync syncs
 lastupdate_url='https://mirror.f4st.host/archlinux/lastupdate'
+
+state_filepath='lastupdate'

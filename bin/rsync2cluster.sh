@@ -359,6 +359,7 @@ nul_str='config string is empty'
 [ -z "$rsync_log_archive" ] && fail "rsync log archive file $nul_str" 14
 [ -z "$rsync_source" ] && fail "rsync source url $nul_str" 16
 [ -z "$lastupdate_url" ] && fail "lastupdate url $nul_str" 17
+[ -z "$state_filepath" ] && fail "state_filepath $nul_str" 31
 [ -z "$ipfs_folder" ] && fail "ipfs mfs folder $nul_str" 18
 if [ "$NOIPNS" -eq 0 ]; then
 	[ -z "$ipfs_ipns_name" ] && fail "ipfs ipns name $nul_str" 19
@@ -410,10 +411,10 @@ fi
 if [ "$RECOVER" -eq 0 ]; then
 
 	# force update if we're creating
-	[ "$CREATE" -eq 1 ] && rm -f "${rsync_target}lastupdate" || true
+	[ "$CREATE" -eq 1 ] && rm -f "${rsync_target}$state_filepath" || true
 
 	# only run when there are changes
-	if [[ -f "${rsync_target}lastupdate" ]] && diff -b <(curl -Ls "$lastupdate_url") "${rsync_target}lastupdate" > /dev/null; then
+	if [[ -f "${rsync_target}$state_filepath" ]] && diff -b <(curl -Ls "$lastupdate_url") "${rsync_target}$state_filepath" > /dev/null; then
 		# exit here if we should do a delta update but there's nothing to do
 		if [ "$CREATE" -eq 0 ]; then
 			printf ':: no changes in uplink-server detected; exiting @ %s\n' "$(get_timestamp)"
@@ -523,8 +524,8 @@ if [ $CREATE -eq 0 ]; then #diff update mechanism
 			warn "rsync printed a warning, forced resync on the next run"
 
 			if [ ! -z "${rsync_target}" ]; then
-				if ! rm "${rsync_target}lastupdate"; then
-					fail "there was a warning in the rsync log, but the lastupdate file couldn't be deleted" 488
+				if ! rm "${rsync_target}$state_filepath"; then
+					fail "there was a warning in the rsync log, but the state file file couldn't be deleted" 488
 				fi
 			else
 				fail "rsync target variable was unexpectedly empty" 489
@@ -579,7 +580,7 @@ else # CREATE is set - full add mechanism from filesystem (without parsing an rs
 	done < <(find . -type f -print0)
 
 	# force update after creation
-	rm -f "${rsync_target}lastupdate" || true
+	rm -f "${rsync_target}$state_filepath" || true
 fi
 
 printf "\n:: sync completed, start publishing @ %s\n" "$(get_timestamp)"
