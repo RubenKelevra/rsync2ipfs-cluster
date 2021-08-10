@@ -200,6 +200,8 @@ function rewrite_log_path() {
 		output=$(echo "$1" | sed 's/\/os\/x86_64\//\//')
 	elif [ "$repo_rename_rules" == 'endeavouros' ]; then
 		output=$(echo "$1")
+	elif [ "$repo_rename_rules" == 'manjaro' ]; then
+		output=$(echo "$1")
 	fi
 
 	#echo return string
