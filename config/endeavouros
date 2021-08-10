@@ -49,6 +49,3 @@ rsync_source='rsync://mirror.erickochen.nl/endeavouros/'
 lastupdate_url='https://mirror.erickochen.nl/endeavouros/synctrace.txt'
 
 state_filepath='synctrace.txt'
-
-# select repository rules to rename paths
-repo_rename_rules='endeavouros'

@@ -288,6 +288,7 @@ cmd_flags=(
 	"no-cluster"
 	"arch-config"
 	"endeavouros-config"
+	"manjaro-config"
 )
 
 #help message
@@ -326,6 +327,9 @@ while true; do
 			;;
 		--endeavouros-config)
 			repo_rename_rules='endeavouros'
+			;;
+		--manjaro-config)
+			repo_rename_rules='manjaro'
 			;;
 		--)
 			shift
