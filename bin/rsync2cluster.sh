@@ -1,5 +1,5 @@
 #!/bin/bash
-# shellcheck disable=SC2015
+# shellcheck disable=SC2015 disable=SC1090
 
 ########
 #
@@ -40,44 +40,13 @@ set -e
 
 # available arguments:
 # --create - use this flag on the first run
+# --x-config - use the config file x
 #
-# make sure to source a config file first
+# make sure to create the x config file which should be loaded first
 
 # check environment
 
 [ -z "${HOME}" ] && fail 'the system variable $HOME was empty' 26
-
-# key name and settings for publishing the ipns
-ipfs_ipns_name="$ipfs_folder"
-ipfs_ipns_ttl='5m'
-ipfs_ipns_lifetime='1h'
-ipfs_chunker='size-65536'
-ipfs_hash='blake2b-256'
-ipfs_cid='1'
-
-ipfs_api_host="/ip4/127.0.0.1/tcp/5001"
-cluster_api_host="/ip4/127.0.0.1/tcp/9094"
-
-# set both -1 for 'everywhere', set 0 for 'default settings of the cluster'
-default_cluster_replication_min="-1"
-default_cluster_replication_max="-1"
-
-#default_cluster_pin_expire="2d"
-default_cluster_pin_expire="172800s" #workaround for broken parsing in 0.13
-
-# directory where rsync should target (needs to end with a slash)
-rsync_target="${HOME}/$ipfs_folder/"
-
-# Lockfile path
-lock="${HOME}/.rsync2cluster/$ipfs_folder.lock"
-
-# current logfile path
-rsync_log="${HOME}/.rsync2cluster/$ipfs_folder.log"
-
-# rsync log archive
-rsync_log_archive="${HOME}/.rsync2cluster/${ipfs_folder}_archive.log"
-
-#### END CONFIG
 
 # local functions
 
@@ -303,26 +272,20 @@ function create_log_archive_path() {
 	mkdir -p "$log_archive_path" || fail "could not create folder for log file" 1044
 }
 
-#create folders for log and lock if they don't exist
-create_lock_path
-create_log_path
-create_log_archive_path
-
-# get lock or exit
-exec 9> "${lock}"
-flock -n 9 || exit
-
 # state variables
 CREATE=0
 RECOVER=0
 NOIPNS=0
 NOCLUSTER=0
+repo_rename_rules=''
 
 # argument definition
 cmd_flags=(
 	"create"
 	"no-ipns"
 	"no-cluster"
+	"arch-config"
+	"endeavouros-config"
 )
 
 #help message
@@ -356,6 +319,12 @@ while true; do
 		--no-cluster)
 			NOCLUSTER=1
 			;;
+		--arch-config)
+			repo_rename_rules='arch'
+			;;
+		--endeavouros-config)
+			repo_rename_rules='endeavouros'
+			;;
 		--)
 			shift
 			break
@@ -363,6 +332,22 @@ while true; do
 	esac
 	shift
 done
+
+# load config file
+
+SCRIPT_FULLPATH=$(readlink -f "$0")
+SCRIPT_FULLDIR=$(dirname "$SCRIPT_FULLPATH")
+
+source "$SCRIPT_FULLDIR/../config/$repo_rename_rules"
+
+#create folders for log and lock if they don't exist
+create_lock_path
+create_log_path
+create_log_archive_path
+
+# get lock or exit
+exec 9> "${lock}"
+flock -n 9 || exit
 
 # check config
 
