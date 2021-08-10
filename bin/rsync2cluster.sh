@@ -430,7 +430,13 @@ if [ "$RECOVER" -eq 0 ]; then
 
 	printf '\n:: starting rsync operation @ %s\n' "$(get_timestamp)"
 
-	rsync_main_cmd --exclude='/pool' "${rsync_source}" "${rsync_target}"
+	if [ "$repo_rename_rules" == 'arch' ]; then
+		rsync_main_cmd --exclude='/pool' "${rsync_source}" "${rsync_target}"
+	elif [ "$repo_rename_rules" == 'endeavouros' ]; then
+		rsync_main_cmd "${rsync_source}" "${rsync_target}"
+	elif [ "$repo_rename_rules" == 'manjaro' ]; then
+		rsync_main_cmd --exclude={/pool,/arm-testing,/arm-unstable,/stable-staging,/testing,/unstable} "${rsync_source}" "${rsync_target}"
+	fi
 fi
 
 if [ $CREATE -eq 0 ]; then
