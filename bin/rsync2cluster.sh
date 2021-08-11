@@ -435,7 +435,7 @@ if [ "$RECOVER" -eq 0 ]; then
 	elif [ "$repo_rename_rules" == 'endeavouros' ]; then
 		rsync_main_cmd "${rsync_source}" "${rsync_target}"
 	elif [ "$repo_rename_rules" == 'manjaro' ]; then
-		rsync_main_cmd --exclude={/pool,/arm-testing,/arm-unstable,/stable-staging,/testing,/unstable} "${rsync_source}" "${rsync_target}"
+		rsync_main_cmd --exclude={/pool,/arm-testing,/arm-unstable,/stable-staging,/testing,/unstable,/stable/kde-unstable} "${rsync_source}" "${rsync_target}"
 	fi
 fi
 
