@@ -227,13 +227,13 @@ function get_path_wo_fn() {
 
 function ipfs_mfs_mkdir_path() {
 	[ -z "$1" ] && fail "ipfs_mfs_mkdir_path() was called with an empty argument" 278
-	ipfs_api files mkdir -p --cid-version 1 "$1" > /dev/null 2>&1
+	ipfs_api files mkdir -p --hash "$ipfs_hash" --cid-version 1 "$1" > /dev/null 2>&1
 	return $?
 }
 
 function ipfs_mfs_mkdir() {
 	[ -z "$1" ] && fail "ipfs_mfs_mkdir() was called with an empty argument" 279
-	ipfs_api files mkdir --cid-version 1 "$1" > /dev/null 2>&1
+	ipfs_api files mkdir --hash "$ipfs_hash" --cid-version 1 "$1" > /dev/null 2>&1
 	return $?
 }
 
