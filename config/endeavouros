@@ -43,9 +43,9 @@ rsync_log="${HOME}/.rsync2cluster/$ipfs_folder.log"
 rsync_log_archive="${HOME}/.rsync2cluster/${ipfs_folder}_archive.log"
 
 # rsync url
-rsync_source='rsync://mirror.jingk.ai/endeavouros/'
+rsync_source='rsync://mirror.moson.org/endeavouros/'
 
 # http/https url to the lastupdate file on the same server, to skip unnecessary rsync syncs
-lastupdate_url='https://mirror.jingk.ai/endeavouros/synctrace.txt'
+lastupdate_url='https://mirror.moson.org/endeavouros/synctrace.txt'
 
 state_filepath='synctrace.txt'
