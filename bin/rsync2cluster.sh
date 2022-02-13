@@ -103,15 +103,15 @@ function ipfs-cluster-ctl_api() {
 	return $?
 }
 
-### Not used; not maintained
+function rm_clusterpin() {
+	local _cid="$1"
 
-# function rm_clusterpin() {
-# 	local _cid="$1"
-#
-# 	if ! ipfs-cluster-ctl_api pin rm --no-status "$_cid" > /dev/null; then
-# 		fail "ipfs-cluster-ctl returned an error while removing a cluster pin: cid: '$_cid'" 237
-# 	fi
-# }
+	if ! ipfs-cluster-ctl_api pin rm --no-status "$_cid" > /dev/null; then
+		fail "ipfs-cluster-ctl returned an error while removing a cluster pin: cid: '$_cid'" 237
+	fi
+}
+
+### Not used; not maintained
 
 # function update_clusterpin() {
 # 	local _old_cid="$1"
@@ -617,7 +617,20 @@ if [ "$NOCLUSTER" -eq 0 ]; then
 		[ -z "$ipfs_pin_cid_preupdate" ] && fail "Old clusterpin could not be located on the cluster-pinset" 1024
 		if [ "$ipfs_pin_cid_preupdate" == "$ipfs_mfs_folder_cid" ]; then
 			warn "Cluster-pinset already contained latest version of folder"
+		elif [[ $_cid == *$'\n'* ]]; then
+			warn "Cluster-pinset contained more than one versions of this folder"
+
+			while IFS= read -r -d $'\n' old_cluster_cid; do
+				warn "Removing old cluster pinset entry $old_cluster_cid"
+
+				rm_clusterpin "$old_cluster_cid"
+			done < <(echo "$ipfs_pin_cid_preupdate")
+
+			warn "Adding new cid $ipfs_mfs_folder_cid as new cluster pinset"
+			add_clusterpin "$ipfs_mfs_folder_cid" "$ipfs_folder" || fail "Repo folder (IPFS) could not be published on the cluster-pinset; CID '$ipfs_mfs_folder_cid'" 998 -n
+
 		else
+
 			echo -ne ":: updating folder on cluster-pinset..."
 			replace_clusterpin "$ipfs_pin_cid_preupdate" "$ipfs_mfs_folder_cid" || fail "Repo folder (IPFS) could not be published on the cluster-pinset; CID '$ipfs_mfs_folder_cid'" 999 -n
 			echo "done."
