@@ -146,6 +146,8 @@ function replace_clusterpin() {
 
 	# error handling
 	[ -z "$_old_cid" ] && fail "replace_clusterpin() was called with an empty old cid" 244
+	[[ $_old_cid == *$'\n'* ]] && fail "replace_clusterpin() was called with a multiple line parameter as old cid" 247
+	[[ $_cid == *$'\n'* ]] && fail "replace_clusterpin() was called with a multiple line parameter as new cid" 248
 	[ -z "$_cid" ] && fail "replace_clusterpin() was called with an empty cid" 245
 	[ "$_old_cid" == "$_cid" ] && fail "replace_clusterpin() was called with two identical cids" 246
 
