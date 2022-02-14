@@ -617,7 +617,7 @@ if [ "$NOCLUSTER" -eq 0 ]; then
 		[ -z "$ipfs_pin_cid_preupdate" ] && fail "Old clusterpin could not be located on the cluster-pinset" 1024
 		if [ "$ipfs_pin_cid_preupdate" == "$ipfs_mfs_folder_cid" ]; then
 			warn "Cluster-pinset already contained latest version of folder"
-		elif [[ $_cid == *$'\n'* ]]; then
+		elif [[ $ipfs_pin_cid_preupdate == *$'\n'* ]]; then
 			warn "Cluster-pinset contained more than one versions of this folder"
 
 			while IFS= read -r -d $'\n' old_cluster_cid; do
