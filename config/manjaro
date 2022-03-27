@@ -16,7 +16,7 @@ ipfs_folder='manjaro.pkg.pacman.store'
 ipfs_ipns_name="$ipfs_folder"
 ipfs_ipns_ttl='5m'
 ipfs_ipns_lifetime='1h'
-ipfs_chunker='rabin-12288-24576-49152'
+ipfs_chunker='size-262144'
 ipfs_hash='blake2b-256'
 ipfs_cid='1'
 
