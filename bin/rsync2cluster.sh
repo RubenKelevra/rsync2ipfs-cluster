@@ -204,6 +204,10 @@ function rewrite_log_path() {
 		output=$(echo "$1")
 	elif [ "$repo_rename_rules" == 'manjaro' ]; then
 		output=$(echo "$1")
+	elif [ "$repo_rename_rules" == 'alhp' ]; then
+		output=$(echo "$1")
+	elif [ "$repo_rename_rules" == 'chaotic-aur' ]; then
+		output=$(echo "$1")
 	fi
 
 	#echo return string
