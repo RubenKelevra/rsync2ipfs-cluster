@@ -447,7 +447,7 @@ if [ "$RECOVER" -eq 0 ]; then
 	elif [ "$repo_rename_rules" == 'manjaro' ]; then
 		rsync_main_cmd --exclude={/pool,/arm-testing,/arm-unstable,/stable-staging,/testing,/unstable,/stable/kde-unstable} "${rsync_source}" "${rsync_target}"
 	elif [ "$repo_rename_rules" == 'alhp' ]; then
-		rsync_main_cmd --exclude={/logs} "${rsync_source}" "${rsync_target}"
+		rsync_main_cmd --exclude={/logs,/packages.html} "${rsync_source}" "${rsync_target}"
 	elif [ "$repo_rename_rules" == 'chaotic-aur' ]; then
 		rsync_main_cmd --exclude={/index.html,/pkgs.files.old.txt,/pkgs.txt,/.stfolder,/.stignore,/pkgs.files.txt} "${rsync_source}" "${rsync_target}"
 	fi
