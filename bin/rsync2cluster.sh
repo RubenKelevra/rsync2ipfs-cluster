@@ -3,7 +3,7 @@
 
 ########
 #
-# Copyright © 2020-2021 @RubenKelevra
+# Copyright © 2020-2022 @RubenKelevra
 #
 # Based on work from:
 # Copyright © 2014-2019 Florian Pritz <bluewind@xinu.at>
@@ -291,6 +291,8 @@ cmd_flags=(
 	"arch-config"
 	"endeavouros-config"
 	"manjaro-config"
+	"alhp-config"
+	"chaotic-aur-config"
 )
 
 #help message
@@ -332,6 +334,12 @@ while true; do
 			;;
 		--manjaro-config)
 			repo_rename_rules='manjaro'
+			;;
+		--alhp-config)
+			repo_rename_rules='alhp'
+			;;
+		--chaotic-aur-config)
+			repo_rename_rules='chaotic-aur'
 			;;
 		--)
 			shift
@@ -438,6 +446,10 @@ if [ "$RECOVER" -eq 0 ]; then
 		rsync_main_cmd "${rsync_source}" "${rsync_target}"
 	elif [ "$repo_rename_rules" == 'manjaro' ]; then
 		rsync_main_cmd --exclude={/pool,/arm-testing,/arm-unstable,/stable-staging,/testing,/unstable,/stable/kde-unstable} "${rsync_source}" "${rsync_target}"
+	elif [ "$repo_rename_rules" == 'alhp' ]; then
+		rsync_main_cmd --exclude={/logs} "${rsync_source}" "${rsync_target}"
+	elif [ "$repo_rename_rules" == 'chaotic-aur' ]; then
+		rsync_main_cmd --exclude={/index.html,/pkgs.files.old.txt,/pkgs.txt,/.stfolder,/.stignore,/pkgs.files.txt} "${rsync_source}" "${rsync_target}"
 	fi
 fi
 
