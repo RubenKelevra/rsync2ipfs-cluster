@@ -1,0 +1,51 @@
+#!/bin/bash
+# shellcheck disable=SC2015 disable=SC2034
+
+########
+#
+# Copyright © 2020-2022 @RubenKelevra
+#
+# LICENSE contains the licensing informations
+#
+########
+
+# ipfs-mfs folder
+ipfs_folder='chaotic-aur.pkg.pacman.store'
+
+# key name and settings for publishing the ipns
+ipfs_ipns_name="$ipfs_folder"
+ipfs_ipns_ttl='5m'
+ipfs_ipns_lifetime='1h'
+ipfs_chunker='size-262144'
+ipfs_hash='blake2b-256'
+ipfs_cid='1'
+
+ipfs_api_host="/ip4/127.0.0.1/tcp/5001"
+cluster_api_host="/ip4/127.0.0.1/tcp/9094"
+
+# set both -1 for 'everywhere', set 0 for 'default settings of the cluster'
+default_cluster_replication_min="-1"
+default_cluster_replication_max="-1"
+
+#default_cluster_pin_expire="2d"
+default_cluster_pin_expire="172800s" #workaround for broken parsing in 0.13
+
+# directory where rsync should target (needs to end with a slash)
+rsync_target="${HOME}/$ipfs_folder/"
+
+# Lockfile path
+lock="${HOME}/.rsync2cluster/$ipfs_folder.lock"
+
+# current logfile path
+rsync_log="${HOME}/.rsync2cluster/$ipfs_folder.log"
+
+# rsync log archive
+rsync_log_archive="${HOME}/.rsync2cluster/${ipfs_folder}_archive.log"
+
+# rsync url
+rsync_source='rsync://builds.garudalinux.org/chaotic/'
+
+# http/https url to the lastupdate file on the same server, to skip unnecessary rsync syncs
+lastupdate_url='https://builds.garudalinux.org/repos/chaotic-aur/lastupdate'
+
+state_filepath='lastupdate'
