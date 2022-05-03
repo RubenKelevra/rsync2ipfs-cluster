@@ -453,7 +453,7 @@ if [ "$RECOVER" -eq 0 ]; then
 	elif [ "$repo_rename_rules" == 'alhp' ]; then
 		rsync_main_cmd --exclude={/logs,/packages.html} "${rsync_source}" "${rsync_target}"
 	elif [ "$repo_rename_rules" == 'chaotic-aur' ]; then
-		rsync_main_cmd --exclude={/index.html,/pkgs.files.old.txt,/pkgs.txt,/.stfolder,/.stignore,/pkgs.files.txt} "${rsync_source}" "${rsync_target}"
+		rsync_main_cmd --exclude={/index.html,/pkgs.files.old.txt,/pkgs.txt,/pkgs.files.txt} --exclude="/.*" --exclude="/x86_64/.*" --exclude="/x86_64/*.lck" "${rsync_source}" "${rsync_target}"
 	fi
 fi
 
