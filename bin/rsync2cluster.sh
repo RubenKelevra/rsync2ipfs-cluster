@@ -46,7 +46,7 @@ set -e
 
 # check environment
 
-[ -z "${HOME}" ] && fail 'the system variable $HOME was empty' 26
+[ -z "${HOME}" ] && fail 'the system variable HOME was empty' 26
 
 # local functions
 
