@@ -140,6 +140,16 @@ function rm_clusterpin() {
 #	add_clusterpin "$_cid" "$_name" "$_timeout" "$_replication_min" "$_replication_max" "direct"
 #}
 
+function io_pressure_higher_than() {
+	threshold_int="$1"
+	io_pressure=$(grep '^full' /proc/pressure/io | cut -d' ' -f 3 | cut -d'=' -f 2)
+	if [ "${io_pressure%.*}" -ge "$threshold_int" ]; then
+		return 0
+	else
+		return 1
+	fi
+}
+
 function replace_clusterpin() {
 	local _old_cid="$1"
 	local _cid="$2"
@@ -153,9 +163,23 @@ function replace_clusterpin() {
 
 	if ! ipfs-cluster-ctl_api pin update --no-status "$_old_cid" "$_cid" > /dev/null 2>&1; then
 		fail "ipfs-cluster-ctl returned an error while updating cid '$_old_cid' to '$_cid'" 201
+	else
+		# hack to give ipfs-cluster some breathing room. See https://github.com/ipfs/ipfs-cluster/issues/1672
+		sleep 3
+		if io_pressure_higher_than 2; then
+			echo -ne "\n... give ipfs-cluster some IO breathing room... sleeping for 5 minutes ...\n"
+			sleep 300
+		fi
 	fi
+
 	if ! ipfs-cluster-ctl_api pin rm --no-status "$_old_cid" > /dev/null 2>&1; then
 		fail "ipfs-cluster-ctl returned an error while unpinning old cid '$_old_cid'" 201
+	else
+		sleep 3
+		if io_pressure_higher_than 2; then
+			echo -ne "\n... give ipfs-cluster some IO breathing room... sleeping for 5 minutes ...\n"
+			sleep 300
+		fi
 	fi
 }
 
