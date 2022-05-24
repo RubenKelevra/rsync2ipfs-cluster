@@ -553,7 +553,7 @@ if [ $CREATE -eq 0 ]; then #diff update mechanism
 			print_warning=0
 			warn "rsync printed a warning, forced resync on the next run"
 
-			if [ ! -z "${rsync_target}" ]; then
+			if [ -n "${rsync_target}" ]; then
 				if ! rm "${rsync_target}$state_filepath"; then
 					fail "there was a warning in the rsync log, but the state file file couldn't be deleted" 488
 				fi
