@@ -397,7 +397,7 @@ while IFS= read -r -d $'\0' filename; do
 
 	unset raw_filepath new_filepath mfs_filepath mfs_parent_folder fs_filepath
 
-	((no_of_adds % 100)) || echo "$no_of_adds files processed..."
+	((no_of_adds % 100)) || printf "\r$no_of_adds files processed...            "
 	((no_of_adds++))
 done < <(find . -type f -print0)
 
