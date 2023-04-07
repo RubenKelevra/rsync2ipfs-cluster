@@ -291,7 +291,7 @@ function ipfs_provide_file_dht() {
 }
 
 function limit_parallel {
-	while [ `jobs -p | wc -l` -ge 10 ]
+	while [ "$(jobs -p | wc -l)" -ge 10 ]
 	do
 		sleep 1
 	done
