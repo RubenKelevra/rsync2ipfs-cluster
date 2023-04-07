@@ -31,7 +31,7 @@ default_cluster_replication_max="6"
 default_cluster_pin_expire="172800s" #workaround for broken parsing in 0.13
 
 # directory where rsync should target (needs to end with a slash)
-rsync_target="${HOME}/$ipfs_folder/"
+rsync_target="${HOME}/pacman.store-repos/$ipfs_folder/"
 
 # Lockfile path
 lock="${HOME}/.rsync2cluster/$ipfs_folder.lock"
