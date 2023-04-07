@@ -225,13 +225,13 @@ function rewrite_log_path() {
 	if [ "$repo_rename_rules" == 'arch' ]; then
 		output=$(echo "$1" | sed 's/\/os\/x86_64\//\//')
 	elif [ "$repo_rename_rules" == 'endeavouros' ]; then
-		output=$(echo "$1")
+		output="$1"
 	elif [ "$repo_rename_rules" == 'manjaro' ]; then
-		output=$(echo "$1")
+		output="$1"
 	elif [ "$repo_rename_rules" == 'alhp' ]; then
-		output=$(echo "$1")
+		output="$1"
 	elif [ "$repo_rename_rules" == 'chaotic-aur' ]; then
-		output=$(echo "$1")
+		output="$1"
 	fi
 
 	#echo return string
