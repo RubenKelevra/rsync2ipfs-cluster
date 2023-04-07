@@ -280,7 +280,23 @@ function ipfs_mfs_add_file() {
 		fail "ipfs_mfs_add_file() could not add the file '$1' to the mfs location '$2'." 283
 	fi
 
+	ipfs_provide_file_dht "$_cid"
 }
+
+function ipfs_provide_file_dht() {
+	# run dht provide in background to speed-up the operations
+
+	limit_parallel
+	ipfs dht provide "$1" &
+}
+
+function limit_parallel {
+	while [ `jobs -p | wc -l` -ge 10 ]
+	do
+		sleep 1
+	done
+}
+
 
 function create_lock_path() {
 	local lock_path=""
@@ -718,3 +734,7 @@ if [ $CREATE -eq 0 ]; then
 	cat "$rsync_log" >> "$rsync_log_archive" || fail "couldn't cat the rsync log" 977
 	rm -f "$rsync_log" || fail "couldn't remove the rsync log" 978
 fi
+
+# wait for background processes to return:
+
+wait
